@@ -79,30 +79,64 @@ if (roleText && !reduceMotion) {
   setTimeout(runTypewriter, 2600);
 }
 
-// Hero Visual 3D Physics Tilt
+// Universal Smooth Anchor Scrolling
+document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+  anchor.addEventListener("click", (e) => {
+    const targetId = anchor.getAttribute("href");
+    if (!targetId || targetId === "#") return;
+
+    if (targetId === "#home") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const targetEl = document.querySelector(targetId);
+    if (targetEl) {
+      e.preventDefault();
+      const offset = 80;
+      const targetPos = targetEl.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: targetPos, behavior: "smooth" });
+    }
+  });
+});
+
+// Hero Visual 3D Physics Tilt with Spring Inertia
 const heroVisual = document.querySelector(".hero-visual");
 const profileCard = document.querySelector(".profile-card");
 if (heroVisual && profileCard && !reduceMotion && finePointer) {
-  let tiltFrame = 0;
-  let pointerPos = null;
+  let targetTiltX = 0;
+  let targetTiltY = 0;
+  let currentTiltX = 0;
+  let currentTiltY = 0;
+  let isHoveringVisual = false;
 
   heroVisual.addEventListener("pointermove", (e) => {
-    pointerPos = { x: e.clientX, y: e.clientY };
-    if (tiltFrame) return;
-    tiltFrame = requestAnimationFrame(() => {
-      const rect = heroVisual.getBoundingClientRect();
-      const x = (pointerPos.x - rect.left) / rect.width - 0.5;
-      const y = (pointerPos.y - rect.top) / rect.height - 0.5;
-      profileCard.style.transform = `translate3d(${x * 12}px, ${y * 12}px, 0) rotateX(${-y * 5}deg) rotateY(${x * 6}deg)`;
-      tiltFrame = 0;
-    });
+    isHoveringVisual = true;
+    const rect = heroVisual.getBoundingClientRect();
+    targetTiltX = ((e.clientX - rect.left) / rect.width - 0.5) * 16;
+    targetTiltY = ((e.clientY - rect.top) / rect.height - 0.5) * 16;
   });
 
   heroVisual.addEventListener("pointerleave", () => {
-    if (tiltFrame) cancelAnimationFrame(tiltFrame);
-    tiltFrame = 0;
-    profileCard.style.transform = "";
+    isHoveringVisual = false;
+    targetTiltX = 0;
+    targetTiltY = 0;
   });
+
+  const renderVisualTilt = () => {
+    const ease = isHoveringVisual ? 0.08 : 0.05;
+    currentTiltX += (targetTiltX - currentTiltX) * ease;
+    currentTiltY += (targetTiltY - currentTiltY) * ease;
+
+    profileCard.style.setProperty("--tilt-x", `${currentTiltX.toFixed(2)}px`);
+    profileCard.style.setProperty("--tilt-y", `${currentTiltY.toFixed(2)}px`);
+    profileCard.style.setProperty("--tilt-rx", `${(-currentTiltY * 0.45).toFixed(2)}deg`);
+    profileCard.style.setProperty("--tilt-ry", `${(currentTiltX * 0.5).toFixed(2)}deg`);
+
+    requestAnimationFrame(renderVisualTilt);
+  };
+  requestAnimationFrame(renderVisualTilt);
 }
 
 // Scroll Progress Indicator with Smooth Gradient Fill
@@ -143,11 +177,10 @@ if (!reduceMotion && finePointer) {
     });
   }
 
-  // Spotlight Coordinates and 3D Tilt for cards
+  // Spotlight Coordinates and Smooth 3D Tilt for cards
   const interactiveCards = document.querySelectorAll(".skill-card, .project-card, .contact-panel");
   interactiveCards.forEach((card) => {
     let frame = 0;
-    let point = null;
 
     card.addEventListener("pointermove", (e) => {
       const rect = card.getBoundingClientRect();
@@ -158,24 +191,27 @@ if (!reduceMotion && finePointer) {
       card.style.setProperty("--mouse-x", `${x}px`);
       card.style.setProperty("--mouse-y", `${y}px`);
 
-      point = { x: e.clientX, y: e.clientY };
-      if (frame) return;
-      frame = requestAnimationFrame(() => {
-        const normX = (point.x - rect.left) / rect.width - 0.5;
-        const normY = (point.y - rect.top) / rect.height - 0.5;
-        card.style.transform = `perspective(1000px) rotateX(${-normY * 3}deg) rotateY(${normX * 4}deg) translateY(-4px)`;
-        frame = 0;
-      });
+      const normX = (x / rect.width) - 0.5;
+      const normY = (y / rect.height) - 0.5;
+
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          card.style.transition = "transform 0.12s ease-out, border-color 0.35s ease, box-shadow 0.45s ease";
+          card.style.transform = `perspective(1000px) rotateX(${(-normY * 4).toFixed(2)}deg) rotateY(${(normX * 5).toFixed(2)}deg) translateY(-4px)`;
+          frame = 0;
+        });
+      }
     });
 
     card.addEventListener("pointerleave", () => {
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
-      card.style.transform = "";
+      card.style.transition = "transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.45s ease";
+      card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
     });
   });
 
-  // Modern Smooth Custom Cursor Follower
+  // Modern Smooth Custom Cursor Follower with Multi-rate Lerp
   const cursorDot = document.createElement("div");
   cursorDot.className = "custom-cursor-dot";
   const cursorRing = document.createElement("div");
@@ -184,19 +220,22 @@ if (!reduceMotion && finePointer) {
   document.body.appendChild(cursorRing);
 
   let mouseX = -100, mouseY = -100;
+  let dotX = -100, dotY = -100;
   let ringX = -100, ringY = -100;
   let isHovered = false;
 
   window.addEventListener("pointermove", (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
-    cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
   }, { passive: true });
 
   const renderCursor = () => {
+    dotX += (mouseX - dotX) * 0.85;
+    dotY += (mouseY - dotY) * 0.85;
     ringX += (mouseX - ringX) * 0.18;
     ringY += (mouseY - ringY) * 0.18;
-    cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) scale(${isHovered ? 1.6 : 1})`;
+    cursorDot.style.transform = `translate3d(${dotX.toFixed(1)}px, ${dotY.toFixed(1)}px, 0)`;
+    cursorRing.style.transform = `translate3d(${ringX.toFixed(1)}px, ${ringY.toFixed(1)}px, 0) scale(${isHovered ? 1.55 : 1})`;
     requestAnimationFrame(renderCursor);
   };
   requestAnimationFrame(renderCursor);

@@ -52,6 +52,8 @@ a {
   box-shadow: 0 0 12px rgba(141, 128, 255, 0.6);
   pointer-events: none;
   animation: progressGlow 4s linear infinite;
+  transition: width 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: width;
 }
 
 @keyframes progressGlow {
@@ -149,7 +151,19 @@ a {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, padding 0.35s ease;
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, padding 0.4s ease;
+  animation: navSlideDown 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes navSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .nav-wrap.scrolled {
@@ -166,26 +180,75 @@ a {
 }
 
 .brand {
-  font: 700 27px "Space Grotesk", sans-serif;
-  letter-spacing: -2px;
+  font: 700 24px "Space Grotesk", sans-serif;
+  letter-spacing: -0.6px;
   display: inline-flex;
   align-items: center;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  white-space: nowrap;
+  position: relative;
+  color: #ffffff;
+  background: linear-gradient(125deg, #ffffff 0%, #ffffff 42%, #c2b8ff 68%, #72d9d0 85%, #ffffff 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, filter, background-position;
+  animation: brandShimmer 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes brandShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .brand:hover {
-  transform: scale(1.06);
+  transform: translateY(-1.5px) scale(1.025);
+  filter: drop-shadow(0 4px 18px rgba(141, 128, 255, 0.45)) drop-shadow(0 0 30px rgba(114, 217, 208, 0.25));
+}
+
+.brand::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #8d80ff, #72d9d0);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(141, 128, 255, 0.8), 0 0 20px rgba(114, 217, 208, 0.5);
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.brand:hover::after {
+  width: 100%;
 }
 
 .brand span {
-  color: #8d80ff;
   display: inline-block;
-  animation: brandDotPulse 3.5s ease-in-out infinite;
+  margin-left: 1px;
+  background: linear-gradient(135deg, #8d80ff, #72d9d0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transform-origin: center;
+  will-change: transform, filter;
+  animation: brandDotPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes brandDotPulse {
-  0%, 100% { transform: scale(1); color: #8d80ff; text-shadow: 0 0 10px rgba(141, 128, 255, 0.4); }
-  50% { transform: scale(1.35); color: #72d9d0; text-shadow: 0 0 18px rgba(114, 217, 208, 0.8); }
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px rgba(141, 128, 255, 0.6));
+  }
+  50% {
+    transform: scale(1.38);
+    filter: drop-shadow(0 0 16px rgba(114, 217, 208, 0.95)) drop-shadow(0 0 24px rgba(141, 128, 255, 0.7));
+  }
 }
 
 .nav-links {
@@ -489,12 +552,23 @@ a {
   animation: cardFloat 8s ease-in-out infinite;
   z-index: 1;
   transform-style: preserve-3d;
-  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
+  will-change: transform;
+  transition: box-shadow 0.5s ease;
 }
 
 @keyframes cardFloat {
-  0%, 100% { transform: translateY(0) rotate(-1deg); }
-  50% { transform: translateY(-12px) rotate(1.2deg); }
+  0%, 100% {
+    transform: translate3d(var(--tilt-x, 0px), calc(var(--tilt-y, 0px) + 0px), 0)
+               rotateX(var(--tilt-rx, 0deg))
+               rotateY(var(--tilt-ry, 0deg))
+               rotateZ(-1deg);
+  }
+  50% {
+    transform: translate3d(var(--tilt-x, 0px), calc(var(--tilt-y, 0px) - 12px), 0)
+               rotateX(var(--tilt-rx, 0deg))
+               rotateY(var(--tilt-ry, 0deg))
+               rotateZ(1.2deg);
+  }
 }
 
 .card-top {
@@ -1271,24 +1345,31 @@ a {
 }
 
 .footer .brand {
+  font-size: 18px;
+  letter-spacing: -0.4px;
   color: #fff;
+  background: none;
+  -webkit-text-fill-color: #fff;
+  animation: none;
+  filter: none;
+}
+
+.footer .brand::after {
+  display: none;
 }
 
 /* --- Staggered Scroll Reveal System --- */
 .reveal {
   opacity: 0;
-  transform: translateY(32px) scale(0.985);
-  filter: blur(6px);
-  transition: opacity 0.85s cubic-bezier(0.2, 0.7, 0.2, 1),
-              transform 0.85s cubic-bezier(0.2, 0.7, 0.2, 1),
-              filter 0.85s cubic-bezier(0.2, 0.7, 0.2, 1);
-  will-change: opacity, transform, filter;
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
 .reveal.visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+  transform: translateY(0);
 }
 
 .skill-card.reveal:nth-child(2),
@@ -1314,6 +1395,7 @@ a {
   pointer-events: none;
   z-index: 9999;
   transform: translate3d(-100px, -100px, 0);
+  will-change: transform;
   transition: opacity 0.3s ease;
 }
 
@@ -1429,6 +1511,11 @@ a {
 }
 
 @media (max-width: 520px) {
+  .brand {
+    font-size: 20px;
+    letter-spacing: -0.4px;
+  }
+
   .container {
     width: min(100% - 34px, 1120px);
   }

@@ -1102,6 +1102,123 @@ a {
   background: radial-gradient(circle at 70% 40%, #2b2860, #15182c 55%, #101522);
 }
 
+.telegram-art {
+  background: radial-gradient(circle at 65% 35%, #0f3d64 0%, #0d243c 45%, #0a1322 80%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.telegram-glow {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(ellipse at 50% 50%, rgba(42, 171, 238, 0.22), transparent 60%),
+    linear-gradient(rgba(42, 171, 238, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42, 171, 238, 0.08) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px, 28px 28px;
+}
+
+.telegram-circle {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2AABEE 0%, #229ED9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 35px rgba(42, 171, 238, 0.45), 0 0 60px rgba(42, 171, 238, 0.25);
+  position: relative;
+  z-index: 2;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  animation: telegramFloat 6s ease-in-out infinite;
+}
+
+.project-card:hover .telegram-circle {
+  transform: scale(1.1) rotate(-4deg);
+  box-shadow: 0 15px 45px rgba(42, 171, 238, 0.65), 0 0 80px rgba(42, 171, 238, 0.4);
+}
+
+@keyframes telegramFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.telegram-icon {
+  width: 44px;
+  height: 44px;
+  color: #ffffff;
+  margin-left: -3px;
+  margin-top: 1px;
+}
+
+.telegram-chat-bubble {
+  position: absolute;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 3;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bubble-one {
+  top: 48px;
+  left: 24px;
+  background: rgba(18, 30, 49, 0.88);
+  border: 1px solid rgba(42, 171, 238, 0.3);
+  color: #72d9d0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.bubble-two {
+  bottom: 38px;
+  right: 24px;
+  background: rgba(15, 25, 42, 0.92);
+  border: 1px solid rgba(141, 128, 255, 0.35);
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.project-card:hover .bubble-one {
+  transform: translateY(-4px) translateX(-3px);
+}
+
+.project-card:hover .bubble-two {
+  transform: translateY(4px) translateX(3px);
+}
+
+.bubble-cmd {
+  font-family: monospace;
+  font-weight: 700;
+  color: #2AABEE;
+}
+
+.bot-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #72d9d0;
+  box-shadow: 0 0 8px #72d9d0;
+  display: inline-block;
+  animation: botDotPulse 2s ease-in-out infinite;
+}
+
+@keyframes botDotPulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
 .grid-glow {
   position: absolute;
   inset: 0;
